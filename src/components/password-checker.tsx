@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ChangeEvent } from 'react';
@@ -20,7 +21,8 @@ const initialStrengthDetails: StrengthDetails = {
   score: 0,
   level: '',
   suggestions: [
-    { text: 'At least 8 characters', met: false },
+    { text: 'At least 12 characters', met: false },
+    { text: 'At least 16 characters (strongly recommended)', met: false },
     { text: 'Contains uppercase letters (A-Z)', met: false },
     { text: 'Contains lowercase letters (a-z)', met: false },
     { text: 'Contains numbers (0-9)', met: false },
@@ -42,47 +44,40 @@ export function PasswordChecker() {
     }
 
     let score = 0;
-    const suggestions = [...initialStrengthDetails.suggestions].map(s => ({...s, met: false})); // Deep copy suggestions
+    const suggestions = [...initialStrengthDetails.suggestions].map(s => ({...s, met: false}));
 
     // Length
-    if (password.length >= 8) {
-      score += 25;
-      suggestions[0].met = true;
-    } else {
-      suggestions[0].met = false;
+    suggestions[0].met = password.length >= 12;
+    suggestions[1].met = password.length >= 16;
+    if (password.length >= 12) {
+      score += 20;
     }
-    if (password.length >= 12) score += 15; // Bonus for longer
+    if (password.length >= 16) {
+      score += 10; // Bonus for 16+
+    }
 
     // Uppercase
-    if (/[A-Z]/.test(password)) {
+    suggestions[2].met = /[A-Z]/.test(password);
+    if (suggestions[2].met) {
       score += 15;
-      suggestions[1].met = true;
-    } else {
-      suggestions[1].met = false;
     }
     
     // Lowercase
-    if (/[a-z]/.test(password)) {
+    suggestions[3].met = /[a-z]/.test(password);
+    if (suggestions[3].met) {
       score += 15;
-      suggestions[2].met = true;
-    } else {
-       suggestions[2].met = false;
     }
 
     // Numbers
-    if (/[0-9]/.test(password)) {
+    suggestions[4].met = /[0-9]/.test(password);
+    if (suggestions[4].met) {
       score += 15;
-      suggestions[3].met = true;
-    } else {
-      suggestions[3].met = false;
     }
 
     // Symbols
-    if (/[^a-zA-Z0-9]/.test(password)) {
-      score += 30; // Symbols are heavily weighted
-      suggestions[4].met = true;
-    } else {
-      suggestions[4].met = false;
+    suggestions[5].met = /[^a-zA-Z0-9]/.test(password);
+    if (suggestions[5].met) {
+      score += 25; // Symbols are heavily weighted
     }
     
     score = Math.min(score, 100); // Cap score at 100
@@ -91,40 +86,32 @@ export function PasswordChecker() {
     let colorVar: string = '--muted';
     let activeSegments: number = 0;
 
-    if (score === 0 && password.length > 0) { // Handle case where password has content but scores 0 on criteria
-        level = 'Too Weak';
-        colorVar = '--strength-weak-val';
-        activeSegments = 1;
-    } else if (score < 20) {
+    if (score < 40) { // Covers passwords > 0 length but very low score
       level = 'Too Weak';
       colorVar = '--strength-weak-val';
       activeSegments = 1;
-    } else if (score < 40) {
-      level = 'Weak';
-      colorVar = '--strength-weak-val';
-      activeSegments = 2;
     } else if (score < 60) {
+      level = 'Weak';
+      colorVar = '--strength-weak-val'; // Still red for weak
+      activeSegments = 2;
+    } else if (score < 80) {
       level = 'Medium';
       colorVar = '--strength-medium-val';
       activeSegments = 3;
-    } else if (score < 80) {
+    } else if (score < 100) {
       level = 'Strong';
       colorVar = '--strength-strong-val';
       activeSegments = 4;
-    } else {
+    } else { // score === 100
       level = 'Very Strong';
       colorVar = '--strength-very-strong-val';
-      activeSegments = 4; // All 4 segments
+      activeSegments = 4;
     }
     
-    if (password.length > 0 && score === 0 && !suggestions.some(s => s.met)) {
-        // This case might occur if password is e.g. "aaaa" (no uppercase, number, symbol, and < 8 for bonus)
-        // It's still better than empty.
-        level = 'Too Weak';
-        colorVar = '--strength-weak-val';
-        activeSegments = 1;
-    }
-
+    // If password has content but doesn't meet the minimum 12 char length criteria, it's Too Weak.
+    // This is implicitly handled by score calculation (score will be low if length < 12).
+    // Example: "short" score will be (0 for length) + (15 for LC) = 15. Falls into < 40.
+    // Example: "a" score will be (0 for length) + (15 for LC) = 15. Falls into < 40.
 
     setStrengthDetails({ score, level, suggestions, colorVar, activeSegments });
 
