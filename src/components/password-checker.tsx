@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, EyeOff, CheckCircle2, XCircle, ShieldCheck } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 
 interface StrengthDetails {
   score: number; // 0-100
@@ -205,9 +206,9 @@ export function PasswordChecker() {
                 {strengthDetails.suggestions.map((suggestion, index) => (
                   <li key={index} className={`flex items-center text-sm ${suggestion.met ? 'text-foreground' : 'text-muted-foreground opacity-75'}`}>
                     {suggestion.met ? (
-                      <CheckCircle2 className="mr-2 h-4 w-4 text-strength-strong shrink-0" />
+                      <CheckCircle2 className="mr-2 h-4 w-4 text-strength-strong shrink-0" style={{color: 'hsl(var(--strength-strong-val))'}} />
                     ) : (
-                      <XCircle className="mr-2 h-4 w-4 text-strength-weak shrink-0" />
+                      <XCircle className="mr-2 h-4 w-4 text-strength-weak shrink-0" style={{color: 'hsl(var(--strength-weak-val))'}} />
                     )}
                     {suggestion.text}
                   </li>

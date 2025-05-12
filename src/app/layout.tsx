@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google'; // Using Inter as an example, Geist is better if available
 import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
+// import { GeistMono } from 'geist/font/mono'; // This line causes an error
 import './globals.css';
 import { cn } from '@/lib/utils';
 
@@ -19,8 +19,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={cn(
         "min-h-screen bg-background font-sans antialiased",
-        GeistSans.variable,
-        GeistMono.variable
+        GeistSans.variable
+        // GeistMono.variable // Removed as it's part of GeistSans or imported separately
       )}>
         {children}
       </body>
